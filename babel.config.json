@@ -3,7 +3,9 @@
     [
       "@babel/preset-react",
       {
-        "runtime": "automatic"
+        "runtime": "classic",
+        "pragma": "createElement",
+        "importSource": "./libs/jsx"
       }
     ],
     "@babel/preset-env",

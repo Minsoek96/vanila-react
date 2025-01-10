@@ -1,3 +1,6 @@
+/** @jsx createElement */
+import { createElement } from "./libs/jsx";
+
 export const Element = () => {
   return (
     <div className="test">
