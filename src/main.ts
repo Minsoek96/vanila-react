@@ -4,7 +4,7 @@ import { Element } from "./Test";
 
 const A = () => createElement("div", null, "first");
 
-const B = Element()
+const B = Element();
 
 const Test = createElement(
   "div",
@@ -17,4 +17,4 @@ const Test = createElement(
 const element = Test;
 
 console.log(JSON.stringify(element, null, 2));
-console.log(B)
+console.log(B);

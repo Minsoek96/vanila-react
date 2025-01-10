@@ -4,11 +4,12 @@
       "@babel/preset-react",
       {
         "runtime": "classic",
-        "pragma": "createElement",
-        "importSource": "./libs/jsx"
+        "pragma": "createElement"
       }
     ],
-    "@babel/preset-env",
+    ["@babel/preset-env", {
+      "modules": false 
+    }],
     "@babel/preset-typescript"
   ]
 }
