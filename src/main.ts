@@ -1,24 +1,16 @@
-import './style.css'
-import typescriptLogo from './typescript.svg'
-import viteLogo from '/vite.svg'
-import { setupCounter } from './counter.ts'
+/* eslint-disable no-console */
+import { createElement } from "./libs/jsx";
 
-document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
-  <div>
-    <a href="https://vite.dev" target="_blank">
-      <img src="${viteLogo}" class="logo" alt="Vite logo" />
-    </a>
-    <a href="https://www.typescriptlang.org/" target="_blank">
-      <img src="${typescriptLogo}" class="logo vanilla" alt="TypeScript logo" />
-    </a>
-    <h1>Vite + TypeScript</h1>
-    <div class="card">
-      <button id="counter" type="button"></button>
-    </div>
-    <p class="read-the-docs">
-      Click on the Vite and TypeScript logos to learn more
-    </p>
-  </div>
-`
+const A = () => createElement("div", null, "first");
 
-setupCounter(document.querySelector<HTMLButtonElement>('#counter')!)
+const Test = createElement(
+  "div",
+  { className: "test" },
+  createElement(A, null),
+  createElement("div", null, createElement("h1", null, "Hello Babel Test")),
+  createElement("p", null, "transformation"),
+);
+
+const element = Test;
+
+console.log(JSON.stringify(element, null, 2));
