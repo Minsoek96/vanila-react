@@ -4,7 +4,6 @@ import react from "@vitejs/plugin-react";
 export default defineConfig({
   plugins: [
     react({
-      jsxRuntime: 'classic',
       babel: {
         babelrc: true,
         configFile: true,
@@ -13,5 +12,10 @@ export default defineConfig({
   ],
   esbuild: {
     jsx: "preserve",
+  },
+  resolve: {
+    alias: {
+      "@": "/src",
+    },
   },
 });
