@@ -12,17 +12,13 @@ export function jsx(type: Component, props: Props = null): VNode {
   const { key, ...restProps } = props || {};
 
   if (typeof type === "function") {
-    return type({
-      ...props,
-    });
+    return type(props);
   }
 
   return {
     type,
     key: key != null ? String(key) : null,
-    props: {
-      ...restProps,
-    },
+    props: restProps,
   };
 }
 

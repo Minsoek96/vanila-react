@@ -1,20 +1,7 @@
 /* eslint-disable no-console */
-import { createElement } from "./libs/jsx";
-import { Element } from "./Test";
+import { App } from "./App";
 
-const A = () => createElement("div", null, "first");
 
-const B = Element();
+const app = App();
 
-const Test = createElement(
-  "div",
-  { className: "test" },
-  createElement(A, null),
-  createElement("div", null, createElement("h1", null, "Hello Babel Test")),
-  createElement("p", null, "transformation"),
-);
-
-const element = Test;
-
-console.log(JSON.stringify(element, null, 2));
-console.log(B);
+console.log(JSON.stringify(app, null, 2));
