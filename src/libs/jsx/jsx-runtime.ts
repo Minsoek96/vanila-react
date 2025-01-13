@@ -8,11 +8,7 @@ type VNode = {
 
 type Component = string | ((props: Props) => VNode) | VNode;
 
-
-export function jsx(
-  type: Component,
-  props: Props = null,
-): VNode {
+export function jsx(type: Component, props: Props = null): VNode {
   const { key, ...restProps } = props || {};
 
   if (typeof type === "function") {
@@ -30,3 +26,4 @@ export function jsx(
   };
 }
 
+export { jsx as jsxs };
