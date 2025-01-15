@@ -8,6 +8,8 @@ type VNode = {
 
 type Component = string | ((props: Props) => VNode) | VNode;
 
+export const Fragment = 'fragement'
+
 export function jsx(type: Component, props: Props = null): VNode {
   const { key, ...restProps } = props || {};
 
