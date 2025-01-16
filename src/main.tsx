@@ -1,4 +1,4 @@
-/* eslint-disable no-console */
+ 
 import { createRoot } from "@/libs/react-dom/client";
 import { App } from "./App";
 

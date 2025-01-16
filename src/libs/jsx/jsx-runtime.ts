@@ -1,6 +1,6 @@
 import { Component, Props, VNode } from "@/libs/types";
 
-export const Fragment = 'fragement'
+export const Fragment = 'fragment'
 
 export function jsx(type: Component, props: Props = null): VNode {
   const { key, ...restProps } = props || {};
