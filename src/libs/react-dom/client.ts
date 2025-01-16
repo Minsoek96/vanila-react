@@ -1,4 +1,5 @@
 import { VNode } from "@/libs/types";
+
 import { camelToKebab } from "@/utils";
 
 /**
@@ -35,12 +36,43 @@ function renderChildren(
   return element;
 }
 
+type AttributeHandler = (
+  value: unknown,
+  element: HTMLElement | DocumentFragment,
+  key?: string
+) => void;
+
+/**
+ * attributeHandlers : 속성 유형 핸들러
+ *
+ * children: Virtual DOM의 자식 노드들을 실제 DOM으로 변환
+ * style: 스타일 객체를 문자열로 변환하여 style 속성에 적용
+ * default: 기본 속성 처리
+ */
+const attributeHandlers: Record<string, AttributeHandler> = {
+  children: (value, element) => {
+    renderChildren(value, element);
+  },
+
+  style: (value, element, key) => {
+    if (element instanceof HTMLElement) {
+      const styleString = styleToString(value as Record<string, string>);
+      element.setAttribute(key ?? "", styleString);
+    }
+  },
+
+  default: (value, element, key) => {
+    if (element instanceof HTMLElement) {
+      element.setAttribute(key ?? "", String(value));
+    }
+  },
+};
+
 /**
  * renderVnode
  *
  * VDOM을 실제 DOM으로 변환
  */
-
 function renderVNode(vNode: VNode): Node {
   const { type, props } = vNode;
 
@@ -58,17 +90,8 @@ function renderVNode(vNode: VNode): Node {
   }
 
   Object.entries(props).forEach(([key, value]) => {
-    if (key === "children") {
-      const children = renderChildren(props?.children, element);
-      return children;
-    } else if (element instanceof HTMLElement) {
-      if (key === "style" && typeof value === "object") {
-        const styleString = styleToString(value as Record<string, string>);
-        element.setAttribute("style", styleString);
-      } else {
-        element.setAttribute(key, String(value));
-      }
-    }
+    const handler = attributeHandlers[key] || attributeHandlers.default;
+    handler(value, element, key);
   });
 
   return element;
