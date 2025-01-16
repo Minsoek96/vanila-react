@@ -1,6 +1,6 @@
- 
-import { createRoot } from "@/libs/react-dom/client";
 import { App } from "./App";
+
+import { createRoot } from "@/libs/react-dom/client";
 
 function main() {
   const container = document.getElementById("app");
@@ -10,6 +10,6 @@ function main() {
   }
 
   const root = createRoot(container);
-  root.render(<App/>);
+  root.render(<App />);
 }
 main();

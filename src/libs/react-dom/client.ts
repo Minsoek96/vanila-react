@@ -1,4 +1,20 @@
 import { VNode } from "@/libs/types";
+import { camelToKebab } from "@/utils";
+
+/**
+ * styleToString
+ *
+ * @param styleObj : style
+ * @returns
+ */
+function styleToString(styleObj: Record<string, string>) {
+  return Object.entries(styleObj as Record<string, string>)
+    .map(([styleKey, styleValue]) => {
+      const cssKey = camelToKebab(styleKey);
+      return `${cssKey}: ${styleValue}`;
+    })
+    .join("; ");
+}
 
 /**
  * renderChildren
@@ -37,10 +53,23 @@ function renderVNode(vNode: VNode): Node {
       ? document.createDocumentFragment()
       : document.createElement(type as string);
 
-  if (props?.children) {
-    const children = renderChildren(props?.children, element);
-    return children;
+  if (!props) {
+    return element;
   }
+
+  Object.entries(props).forEach(([key, value]) => {
+    if (key === "children") {
+      const children = renderChildren(props?.children, element);
+      return children;
+    } else if (element instanceof HTMLElement) {
+      if (key === "style" && typeof value === "object") {
+        const styleString = styleToString(value as Record<string, string>);
+        element.setAttribute("style", styleString);
+      } else {
+        element.setAttribute(key, String(value));
+      }
+    }
+  });
 
   return element;
 }
