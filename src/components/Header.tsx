@@ -1,6 +1,10 @@
 export default function Header() {
   const MENU_ITEMS = ["first", "second", "third"] as const;
 
+  const handleClick = (item: string) => {
+    alert(item);
+  };
+
   return (
     <header style={{ background: "#fff", padding: "1rem" }}>
       <div style={{ fontSize: "3rem", fontWeight: "bold" }}>1</div>
@@ -29,7 +33,7 @@ export default function Header() {
                 fontSize: `${16 + index * 2}px`,
               }}
             >
-              <span>{item}</span>
+              <span onClick={() => handleClick(item)}>{item}</span>
             </li>
           );
         })}

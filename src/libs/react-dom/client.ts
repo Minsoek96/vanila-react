@@ -1,6 +1,6 @@
 import { VNode } from "@/libs/types";
 
-import { camelToKebab } from "@/utils";
+import { camelToKebab, convertToEventType } from "@/utils";
 
 /**
  * styleToString
@@ -39,7 +39,8 @@ function renderChildren(
 type AttributeHandler = (
   value: unknown,
   element: HTMLElement | DocumentFragment,
-  key?: string
+  key?: string,
+  originKey?: string
 ) => void;
 
 /**
@@ -48,6 +49,7 @@ type AttributeHandler = (
  * children: Virtual DOM의 자식 노드들을 실제 DOM으로 변환
  * style: 스타일 객체를 문자열로 변환하여 style 속성에 적용
  * default: 기본 속성 처리
+ * addEvent: 이벤트 등록 처리
  */
 const attributeHandlers: Record<string, AttributeHandler> = {
   children: (value, element) => {
@@ -64,6 +66,20 @@ const attributeHandlers: Record<string, AttributeHandler> = {
   default: (value, element, key) => {
     if (element instanceof HTMLElement) {
       element.setAttribute(key ?? "", String(value));
+    }
+  },
+
+  addEvent: (value, element, _, originKey) => {
+    if (!(element instanceof HTMLElement) || !originKey) {
+      return;
+    }
+
+    try {
+      const eventType = convertToEventType(originKey);
+      const handler = value as EventListener;
+      element.addEventListener(eventType, handler);
+    } catch (error) {
+      console.error(`Failed to add event listener for ${originKey}:`, error);
     }
   },
 };
@@ -90,8 +106,12 @@ function renderVNode(vNode: VNode): Node {
   }
 
   Object.entries(props).forEach(([key, value]) => {
+    const originKey = key;
+    if (key.startsWith("on")) {
+      key = "addEvent";
+    }
     const handler = attributeHandlers[key] || attributeHandlers.default;
-    handler(value, element, key);
+    handler(value, element, key, originKey);
   });
 
   return element;
