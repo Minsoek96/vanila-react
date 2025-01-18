@@ -8,7 +8,7 @@ export default function Header() {
   return (
     <header style={{ background: "#fff", padding: "1rem" }}>
       <div style={{ fontSize: "3rem", fontWeight: "bold" }}>1</div>
-      <div style={{ color: "#666" }}>2</div>
+      <div style={{ color: "#666" }}>2+3 : {2+3}</div>
       <ul
         style={{
           display: "flex",
