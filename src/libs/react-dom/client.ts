@@ -9,7 +9,7 @@ import { camelToKebab, convertToEventType } from "@/utils";
  * @returns
  */
 function styleToString(styleObj: Record<string, string>) {
-  return Object.entries(styleObj as Record<string, string>)
+  return Object.entries(styleObj)
     .map(([styleKey, styleValue]) => {
       const cssKey = camelToKebab(styleKey);
       return `${cssKey}: ${styleValue}`;
