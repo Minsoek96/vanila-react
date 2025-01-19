@@ -3,13 +3,16 @@
     [
       "@babel/preset-react",
       {
-        "runtime": "classic",
-        "pragma": "createElement"
+        "runtime": "automatic",
+        "importSource": "@/libs/jsx"
       }
     ],
-    ["@babel/preset-env", {
-      "modules": false 
-    }],
+    [
+      "@babel/preset-env",
+      {
+        "modules": false
+      }
+    ],
     "@babel/preset-typescript"
   ]
 }

@@ -1,6 +1,7 @@
 /* eslint-disable no-console */
-import { Element } from "./Test";
+import { App } from "./App";
 
 
-const element = Element();
-console.log(JSON.stringify(element, null, 2));
+const app = App();
+
+console.log(JSON.stringify(app, null, 2));
