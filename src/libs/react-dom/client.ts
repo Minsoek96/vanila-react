@@ -9,7 +9,7 @@ import { camelToKebab, convertToEventType } from "@/utils";
  * @returns
  */
 function styleToString(styleObj: Record<string, string>) {
-  return Object.entries(styleObj as Record<string, string>)
+  return Object.entries(styleObj)
     .map(([styleKey, styleValue]) => {
       const cssKey = camelToKebab(styleKey);
       return `${cssKey}: ${styleValue}`;
@@ -92,7 +92,7 @@ const attributeHandlers: Record<string, AttributeHandler> = {
 function renderVNode(vNode: VNode): Node {
   const { type, props } = vNode;
 
-  if ((typeof vNode === "string") || (typeof vNode === "number")) {
+  if (typeof vNode === "string" || typeof vNode === "number") {
     return document.createTextNode(String(vNode));
   }
 
