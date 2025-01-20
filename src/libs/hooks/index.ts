@@ -1,4 +1,3 @@
-import { App } from "@/App";
 import { createRoot } from "@/libs/react-dom/client";
 
 type InitsialState<T> = null | T;
@@ -16,14 +15,8 @@ const store: Store = {
 
 //TOOD : Client와 상태동기화 방법 생각하기
 function reRender() {
-  const container = document.getElementById("app");
-
-  if (!container) {
-    return;
-  }
-
-  const root = createRoot(container);
-  root.render(App());
+  const root = createRoot();
+  root.update();
 
   store.currentIndex = 0;
 }

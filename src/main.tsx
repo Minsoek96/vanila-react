@@ -10,6 +10,8 @@ function main() {
   }
 
   const root = createRoot(container);
-  root.render(<App />);
+  root.render(() => {
+    return <App />;
+  });
 }
 main();

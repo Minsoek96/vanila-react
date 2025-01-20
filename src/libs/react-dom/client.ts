@@ -117,14 +117,30 @@ function renderVNode(vNode: VNode): Node {
   return element;
 }
 
-export function createRoot(container: HTMLElement) {
+let rootElement: HTMLElement | null = null;
+let rootComponent: (() => VNode) | null = null;
+export function createRoot(container?: HTMLElement) {
+  if (container) {
+    rootElement = container;
+  }
   return {
-    render(vnode: VNode) {
-      container.innerHTML = "";
-      const element = renderVNode(vnode);
-      if (element) {
-        container.appendChild(element);
+    render(component: () => VNode) {
+      rootComponent = component;
+      if (!rootElement || !rootComponent) {
+        return;
       }
+      rootElement.innerHTML = "";
+      const element = renderVNode(rootComponent());
+      if (element) {
+        rootElement.appendChild(element);
+      }
+    },
+
+    update() {
+      if (!rootComponent) {
+        return;
+      }
+      this.render(rootComponent);
     },
   };
 }
