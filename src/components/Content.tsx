@@ -51,11 +51,16 @@ export default function Content() {
     setSubCount((prev) => (prev <= 0 ? prev : prev - 3));
   };
 
+  const handleClear = () => {
+    setCount(0);
+    setSubCount(0);
+  };
+
   return (
     <div style={{ padding: "2rem", display: "flex", flexDirection: "column" }}>
       <h1
         style={{
-          color: 'red',
+          color: "red",
           fontSize: "1.5rem",
           fontWeight: "bold",
           marginBottom: "1rem",
@@ -77,6 +82,12 @@ export default function Content() {
         onDecrease={() => handleDecrease("sub")}
         onIncrease={handleIncrease}
       />
+      <button
+        onclick={handleClear}
+        style={{ padding: "0.5rem 1rem", marginRight: "1rem", width: '15rem' }}
+      >
+        clear
+      </button>
 
       <p style={{ color: "#666" }}>transformation</p>
     </div>
