@@ -1,4 +1,4 @@
-import { VNode } from "@/libs/types";
+import { RenderVNode } from "@/libs/types";
 
 import { camelToKebab, convertToEventType } from "@/utils";
 
@@ -89,7 +89,7 @@ const attributeHandlers: Record<string, AttributeHandler> = {
  *
  * VDOM을 실제 DOM으로 변환
  */
-function renderVNode(vNode: VNode): Node {
+function renderVNode(vNode: RenderVNode): Node {
   const { type, props } = vNode;
 
   if (typeof vNode === "string" || typeof vNode === "number") {
@@ -118,13 +118,13 @@ function renderVNode(vNode: VNode): Node {
 }
 
 let rootElement: HTMLElement | null = null;
-let rootComponent: (() => VNode) | null = null;
+let rootComponent: (() => RenderVNode) | null = null;
 export function createRoot(container?: HTMLElement) {
   if (container) {
     rootElement = container;
   }
   return {
-    render(component: () => VNode) {
+    render(component: () => RenderVNode) {
       rootComponent = component;
       if (!rootElement || !rootComponent) {
         return;
