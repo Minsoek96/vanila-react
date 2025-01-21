@@ -1,14 +1,6 @@
-type Props = Record<string, unknown> | null;
+import { Component, Props, VNode } from "@/libs/types";
 
-type VNode = {
-  type: Component;
-  props: Props;
-  key: string | null;
-};
-
-type Component = string | ((props: Props) => VNode) | VNode;
-
-export const Fragment = 'fragement'
+export const Fragment = 'fragment'
 
 export function jsx(type: Component, props: Props = null): VNode {
   const { key, ...restProps } = props || {};
