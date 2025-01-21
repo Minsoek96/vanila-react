@@ -6,6 +6,10 @@ type VNode = {
   key: string | null;
 };
 
+type RenderVNode = Omit<VNode, "type"> & {
+  type: string;
+};
+
 type Component = string | ((props: Props) => VNode) | VNode;
 
-export type { Props, VNode, Component };
+export type { Props, VNode, Component, RenderVNode };
