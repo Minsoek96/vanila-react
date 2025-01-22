@@ -23,9 +23,7 @@ export default function Header() {
         placeholder="dddd"
         onChange={(e: Event) => handleChange(e)}
         value={text}
-      >
-        ddd
-      </input>
+      />
       <ul
         style={{
           display: "flex",
