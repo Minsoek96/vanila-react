@@ -6,6 +6,8 @@ const camelToKebab = (str: string): string => {
   return str.replace(/([A-Z])/g, "-$1").toLowerCase();
 };
 
+//TODO : diff를 구현 후에 이벤트 합성에 대해서 생각해보기
+// ex : Change : 'input'
 const SPECIAL_EVENT_MAPPINGS = {
   doubleClick: "dblclick",
 } as const;
