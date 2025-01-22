@@ -6,12 +6,14 @@ type ViewModeProps = {
   todo: Todo;
   onToggle: (id: string) => void;
   onStartEdit: (e: Event) => void;
+  onRemove: (id: string) => void;
 };
 
 export default function ViewMode({
   todo,
   onToggle,
   onStartEdit,
+  onRemove,
 }: ViewModeProps) {
   return (
     <>
@@ -32,6 +34,12 @@ export default function ViewMode({
           style={{ ...styles.button, ...styles.editButton }}
         >
           수정
+        </button>
+        <button
+          onClick={() => onRemove(todo.id)}
+          style={{ ...styles.button, ...styles.cancelButton }}
+        >
+          삭제
         </button>
       </div>
     </>

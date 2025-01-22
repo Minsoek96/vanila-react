@@ -15,7 +15,12 @@ type TodoItemProps = {
   onToggle: (id: string) => void;
 };
 
-export default function TodoItem({ todo, onToggle, onUpdate }: TodoItemProps) {
+export default function TodoItem({
+  todo,
+  onToggle,
+  onUpdate,
+  onRemove,
+}: TodoItemProps) {
   const [isEdit, setIsEdit] = useState<boolean>(false);
   const [text, setText] = useState<string>(todo.text);
 
@@ -58,6 +63,7 @@ export default function TodoItem({ todo, onToggle, onUpdate }: TodoItemProps) {
           todo={todo}
           onToggle={onToggle}
           onStartEdit={handleStartEdit}
+          onRemove={onRemove}
         />
       )}
     </li>
