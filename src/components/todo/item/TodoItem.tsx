@@ -40,12 +40,12 @@ export default function TodoItem({
   // 편집모드 취소
   const handleCancelEdit = () => {
     setIsEdit(false);
-    setText(todo.text);
   };
 
   // 편집모드 활성
   const handleStartEdit = (e: Event) => {
     e.stopPropagation();
+    setText(todo.text); 
     setIsEdit(true);
   };
 
