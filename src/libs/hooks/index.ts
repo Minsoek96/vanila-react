@@ -1,5 +1,7 @@
 import { createRoot } from "@/libs/react-dom/client";
 
+import { batchUpdate } from "./batchUpdate";
+
 type InitsialState<T> = null | T;
 type SetStateAction<T> = T | ((prevState: T) => T);
 
@@ -13,11 +15,17 @@ const store: Store = {
   currentIndex: 0,
 };
 
-//TOOD : Client와 상태동기화 방법 생각하기
+/**
+ * reRender
+ *
+ * 현재 client 상태와 연결 해주는 함수
+ */
 function reRender() {
   const root = createRoot();
   root.update();
+}
 
+export function resetStore() {
   store.currentIndex = 0;
 }
 
@@ -35,13 +43,12 @@ export function useState<T>(
       typeof newState === "function"
         ? (newState as (prev: T) => T)(store.states[hookIdx])
         : newState;
-
     if (Object.is(nextState, store.states[hookIdx])) {
       return;
     }
 
     store.states[hookIdx] = nextState;
-    reRender();
+    batchUpdate(reRender);
   };
 
   store.currentIndex++;
