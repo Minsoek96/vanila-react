@@ -25,7 +25,7 @@ function styleToString(styleObj: Record<string, string>) {
  */
 function renderChildren(
   child: unknown,
-  element: HTMLElement | DocumentFragment,
+  element: HTMLElement | DocumentFragment
 ) {
   const children = Array.isArray(child) ? child : [child];
 
@@ -117,8 +117,35 @@ function renderVNode(vNode: RenderVNode): Node {
   return element;
 }
 
+//TOOD : 업데이트 렌더에 대한 구현 생각해보기
+// 어떻게 parentNode를 순회할까 ?
+function updateRender(
+  oldNode: RenderVNode,
+  newNode: RenderVNode,
+  rootElement: HTMLElement
+) {
+  newNode.type = "div";
+  if (oldNode.type !== newNode.type) {
+    console.log("동작");
+    const newEl = renderVNode(newNode);
+    rootElement.innerHTML = "";
+    rootElement.append(newEl);
+  }
+  console.log(rootElement);
+  console.log(rootElement.childNodes);
+  console.log(oldNode.type === newNode.type);
+  console.log(oldNode);
+  console.log("<------구분선------>");
+  console.log(newNode);
+  oldNode = newNode;
+}
+
+// TODO : const 변경 객체화에 대해서 생각해보기
 let rootElement: HTMLElement | null = null;
 let rootComponent: (() => RenderVNode) | null = null;
+let oldNode: RenderVNode | null = null;
+let newNode: RenderVNode | null = null;
+
 export function createRoot(container?: HTMLElement) {
   if (container) {
     rootElement = container;
@@ -134,13 +161,19 @@ export function createRoot(container?: HTMLElement) {
       if (element) {
         rootElement.appendChild(element);
       }
+      oldNode = rootComponent();
     },
 
     update() {
       if (!rootComponent) {
         return;
       }
-      this.render(rootComponent);
+      newNode = rootComponent();
+      if (!(rootElement instanceof HTMLElement)) {
+        return;
+      }
+      updateRender(oldNode, newNode, rootElement);
+      // this.render(rootComponent);
     },
   };
 }
