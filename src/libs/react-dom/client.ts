@@ -1,3 +1,4 @@
+import { updateRender } from "@/libs/react-dom/updateRender";
 import { RenderVNode } from "@/libs/types";
 
 import { camelToKebab, convertToEventType } from "@/utils";
@@ -25,7 +26,7 @@ function styleToString(styleObj: Record<string, string>) {
  */
 function renderChildren(
   child: unknown,
-  element: HTMLElement | DocumentFragment
+  element: HTMLElement | DocumentFragment,
 ) {
   const children = Array.isArray(child) ? child : [child];
 
@@ -51,7 +52,7 @@ type AttributeHandler = (
  * default: 기본 속성 처리
  * addEvent: 이벤트 등록 처리
  */
-const attributeHandlers: Record<string, AttributeHandler> = {
+export const attributeHandlers: Record<string, AttributeHandler> = {
   children: (value, element) => {
     renderChildren(value, element);
   },
@@ -89,7 +90,7 @@ const attributeHandlers: Record<string, AttributeHandler> = {
  *
  * VDOM을 실제 DOM으로 변환
  */
-function renderVNode(vNode: RenderVNode): Node {
+export function renderVNode(vNode: RenderVNode): Node {
   const { type, props } = vNode;
 
   if (typeof vNode === "string" || typeof vNode === "number") {
@@ -115,29 +116,6 @@ function renderVNode(vNode: RenderVNode): Node {
   });
 
   return element;
-}
-
-//TOOD : 업데이트 렌더에 대한 구현 생각해보기
-// 어떻게 parentNode를 순회할까 ?
-function updateRender(
-  oldNode: RenderVNode,
-  newNode: RenderVNode,
-  rootElement: HTMLElement
-) {
-  newNode.type = "div";
-  if (oldNode.type !== newNode.type) {
-    console.log("동작");
-    const newEl = renderVNode(newNode);
-    rootElement.innerHTML = "";
-    rootElement.append(newEl);
-  }
-  console.log(rootElement);
-  console.log(rootElement.childNodes);
-  console.log(oldNode.type === newNode.type);
-  console.log(oldNode);
-  console.log("<------구분선------>");
-  console.log(newNode);
-  oldNode = newNode;
 }
 
 // TODO : const 변경 객체화에 대해서 생각해보기
@@ -169,10 +147,10 @@ export function createRoot(container?: HTMLElement) {
         return;
       }
       newNode = rootComponent();
-      if (!(rootElement instanceof HTMLElement)) {
+      if (!(rootElement instanceof HTMLElement) || !oldNode) {
         return;
       }
-      updateRender(oldNode, newNode, rootElement);
+      updateRender(oldNode, newNode, rootElement.firstChild as HTMLElement);
       // this.render(rootComponent);
     },
   };
