@@ -44,8 +44,10 @@ export default function Content() {
   };
 
   const handleDecrease = (type: CountType) => {
-    if (type === "main" && count < 1) return;
-    if (type === "sub" && subCount < 1) return;
+    // TODO : 현재 갱신이 count를 추적 하지 못하는 문제가 있음
+    // useState가 반환하는 store.states[hookIdx]의 값이 갱신 되지 못하는 문제
+    // if (type === "main" && count < 1) return;
+    // if (type === "sub" && subCount < 1) return;
 
     setCount((prev) => (prev <= 0 ? prev : prev - 1));
     setSubCount((prev) => (prev <= 0 ? prev : prev - 3));

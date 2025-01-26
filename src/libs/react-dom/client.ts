@@ -150,7 +150,12 @@ export function createRoot(container?: HTMLElement) {
       if (!(rootElement instanceof HTMLElement) || !oldNode) {
         return;
       }
-      updateRender(oldNode, newNode, rootElement.firstChild as HTMLElement);
+
+      const parentElement =
+        rootElement.firstChild instanceof DocumentFragment
+          ? rootElement
+          : (rootElement.firstChild as HTMLElement);
+      updateRender(oldNode, newNode, parentElement);
       // this.render(rootComponent);
     },
   };
