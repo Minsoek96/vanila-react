@@ -15,9 +15,9 @@ export function batchUpdate(update: () => void) {
     isUpdating = true;
 
     Promise.resolve().then(() => {
+      resetStore();
       updateQueue.forEach((update) => update());
       updateQueue.clear();
-      resetStore();
       isUpdating = false;
     });
   }

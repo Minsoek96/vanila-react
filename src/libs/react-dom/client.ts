@@ -151,12 +151,13 @@ export function createRoot(container?: HTMLElement) {
         return;
       }
 
-      const parentElement =
-        rootElement.firstChild instanceof DocumentFragment
-          ? rootElement
-          : (rootElement.firstChild as HTMLElement);
-      updateRender(oldNode, newNode, parentElement);
-      // this.render(rootComponent);
+      // const parentElement =
+      //   rootElement.firstChild instanceof DocumentFragment
+      //     ? rootElement
+      //     : (rootElement.firstChild as HTMLElement);
+      // updateRender(oldNode, newNode, parentElement);
+      console.log(JSON.stringify(newNode, null, 2));
+      this.render(rootComponent);
     },
   };
 }

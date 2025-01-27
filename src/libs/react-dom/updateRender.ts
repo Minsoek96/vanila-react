@@ -76,7 +76,7 @@ const compareAttrHandlers: CompareHandlers = {
 export function updateRender(
   oldNode: RenderVNode,
   newNode: RenderVNode,
-  parentEl: HTMLElement
+  parentEl: HTMLElement,
 ) {
   console.log("오래된 노드", oldNode);
   console.log("새로운 노드", newNode);
@@ -89,7 +89,7 @@ export function updateRender(
 
   if (typeof newNode === "string" || typeof newNode === "number") {
     if (oldNode !== newNode) {
-      // text 노드 업데이트 nodeValue를 사용해야함 
+      // text 노드 업데이트 nodeValue를 사용해야함
       // textContent 는 모든걸 덮어버림;
       parentEl.nodeValue = String(newNode);
     }
@@ -120,7 +120,7 @@ export function updateRender(
         newValue,
         key,
         "경계선",
-        oldProps[originKey]
+        oldProps[originKey],
       );
       const createAttrHandler =
         attributeHandlers[key] || attributeHandlers.default;

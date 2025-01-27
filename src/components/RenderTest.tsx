@@ -44,7 +44,7 @@ export default function RenderTest() {
         placeHolder={"입력해주세요"}
       />
       <button onClick={handleClick}>Add Child</button>
-      {children.map((child) => {
+      {children.length > 0 && children.map((child) => {
         return (
           <div key={child.id}>
             <h3>{child.name}</h3>
