@@ -32,6 +32,7 @@ export default function RenderTest() {
     setChildren((prev) => [...prev, newChild]);
     setText("");
   };
+
   return (
     <div>
       {"붕붕붕붕"}
@@ -43,6 +44,7 @@ export default function RenderTest() {
         onChange={handleChange}
         placeHolder={"입력해주세요"}
       />
+      <h2>{children.length}</h2>
       <button onClick={handleClick}>Add Child</button>
       {children.length > 0 && children.map((child) => {
         return (

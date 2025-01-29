@@ -2,6 +2,9 @@
 import { attributeHandlers, renderVNode } from "@/libs/react-dom/client";
 
 import { RenderVNode } from "@/libs/types";
+import { camelToKebab, convertToEventType } from "@/utils";
+
+type DOMEventHandler = (event: Event) => void;
 
 type CompareHandler<T = unknown> = (
   oldValue: T,
@@ -18,12 +21,42 @@ type CompareHandlers = {
 
 type ChildUpdateType = "ADD" | "REMOVE" | "NEXT_CHILD";
 
+/**
+ * style 속성 업데이트 처리
+ * (fontSize -> font-size)
+ */
+function handleStyleUpdate(
+  oldStyle: Record<string, string>,
+  newStyle: Record<string, string>,
+  element: HTMLElement,
+) {
+  if (!oldStyle || !newStyle) return;
+
+  // 제거된 스타일 처리
+  Object.keys(oldStyle).forEach((key) => {
+    if (!(key in newStyle)) {
+      element.style.removeProperty(camelToKebab(key));
+    }
+  });
+
+  // 새로운/변경된 스타일 적용
+  Object.entries(newStyle).forEach(([key, value]) => {
+    if (oldStyle[key] !== value) {
+      element.style.setProperty(camelToKebab(key), value);
+    }
+  });
+}
+
 const getChildUpdateType = (
   oldChild: unknown,
-  newChild: unknown,
+  newChild: unknown
 ): ChildUpdateType => {
-  if (!oldChild) return "ADD";
-  if (!newChild) return "REMOVE";
+  if (!oldChild && newChild) {
+    return "ADD";
+  }
+  if (oldChild && !newChild) {
+    return "REMOVE";
+  }
   return "NEXT_CHILD";
 };
 
@@ -34,33 +67,49 @@ function isPrimitive(value: unknown): value is string | number {
 //남은 파트 어떻게 처리 할 것인가
 const compareAttrHandlers: CompareHandlers = {
   children: (oldChild: RenderVNode[], newChild: RenderVNode[], parentEl) => {
-    console.log(oldChild, "오래된 자식");
-    console.log(newChild, "새로운  자식");
-    if (!Array.isArray(newChild)) {
-      if (oldChild !== newChild) {
-        console.log("새로운 값을 추가?", newChild)
-        parentEl.textContent = String(newChild);
-      }
-      return;
-    }
+    const oldChildArray = Array.isArray(oldChild) ? oldChild : [oldChild];
+    const newChildArray = Array.isArray(newChild) ? newChild : [newChild];
+    const currentChildren = Array.from(parentEl.childNodes);
+    const maxLength = Math.max(oldChildArray.length, newChildArray.length);
 
-    for (let i = 0; i < Math.max(oldChild.length, newChild.length); i++) {
-      const currentChild = parentEl.childNodes[i];
-      updateRender(oldChild[i], newChild[i], currentChild as HTMLElement);
+    for (let i = 0; i < maxLength; i++) {
+      const oldChildItem = oldChildArray[i];
+      const newChildItem = newChildArray[i];
+      const currentChild = currentChildren[i];
+
+      if (isPrimitive(oldChildItem) || isPrimitive(newChildItem)) {
+        if (oldChildItem !== newChildItem && currentChild) {
+          currentChild.textContent = String(newChildItem);
+          continue;
+        }
+      }
+
+      const updateType = getChildUpdateType(oldChildItem, newChildItem);
+
+      if (updateType === "ADD") {
+        const newElement = renderVNode(newChildItem);
+        parentEl.appendChild(newElement);
+        continue;
+      }
+
+      if (updateType === "REMOVE") {
+        parentEl.removeChild(currentChild);
+        continue;
+      }
+
+      if (updateType === "NEXT_CHILD") {
+        updateRender(oldChildItem, newChildItem, currentChild as HTMLElement);
+      }
     }
   },
 
   style: (oldStyle, newStyle, parentEl) => {
-    // console.log(parentEl);
-    // console.log(oldStyle, "oldStyle");
-    // console.log(newStyle, "newStyle");
+    handleStyleUpdate(oldStyle, newStyle, parentEl);
   },
 
   value: (oldValue, newValue, parentEl) => {
-    console.log("벨류 체인지");
     if (parentEl instanceof HTMLInputElement && oldValue !== newValue) {
-      console.log("조건 통과", newValue);
-      parentEl.value = String(newValue);
+      parentEl.setAttribute("value", newValue);
     }
   },
 
@@ -71,23 +120,25 @@ const compareAttrHandlers: CompareHandlers = {
   },
 };
 
-//TOOD : 업데이트 렌더에 대한 구현 생각해보기
-// 어떻게 parentNode를 순회할까 ? clear
+/**TODO :
+ *
+ * 1. 삭제가 이상하게 동작하는 문제
+ * 2. 카운터의 경우 정상 동작하지만, 내부 반환 값 불일치로 미작동 문제 (이벤트 최신화로 추정됨)
+ * 3. getChildUpdateType이 오히려 더 복잡한 느낌 ?
+ * 4. 전체적 코드 정리 필요
+ *
+ * 1. 아이템 추가의 경우도 일단은 OK 
+ * 2. 글자 업데이트 OK
+ * 3. 스타일 재조정 OK
+ * 4. undefined 태그 문제 OK
+ * */
 export function updateRender(
   oldNode: RenderVNode,
   newNode: RenderVNode,
   parentEl: HTMLElement,
 ) {
-  console.log("오래된 노드", oldNode);
-  console.log("새로운 노드", newNode);
-  if (oldNode.type !== newNode.type) {
-    const newEl = renderVNode(newNode);
-    parentEl.innerHTML = "";
-    parentEl.append(newEl);
-    return;
-  }
-
-  if (typeof newNode === "string" || typeof newNode === "number") {
+  // 텍스트 노드에 대한 처리
+  if (isPrimitive(newNode)) {
     if (oldNode !== newNode) {
       // text 노드 업데이트 nodeValue를 사용해야함
       // textContent 는 모든걸 덮어버림;
@@ -96,11 +147,18 @@ export function updateRender(
     return;
   }
 
+  // 완전 다른 타입의 경우
+  if (oldNode.type !== newNode.type) {
+    const newEl = renderVNode(newNode);
+    parentEl.innerHTML = "";
+    parentEl.append(newEl);
+    return;
+  }
+
   const oldProps = oldNode?.props ?? {};
   const newProps = newNode?.props ?? {};
 
   Object.entries(newProps).forEach(([key, newValue]) => {
-    console.log(newValue, "다 뽑아", key);
     const originKey = key;
     if (key.startsWith("on")) {
       key = "addEvent";
@@ -108,33 +166,34 @@ export function updateRender(
 
     const isNewAttribute = !(originKey in oldProps);
     if (isNewAttribute) {
-      //TODO: createAttrHandler 없던 것을 새로 생성하는 느낌.
-      //reconcileHandlers vs  compareAttrHandlers.....
-      //재조정? 비교/ 업데이트/ 삭제의 함축적 표현
-      // but updateRender 의 목적이 이미 재조정 인데 흠
-      //단순 비교 ??
-
-      //완전히 새롭게 생성된 속성
-      console.log(
-        "새롭게 생성된 속성?",
-        newValue,
-        key,
-        "경계선",
-        oldProps[originKey],
-      );
+      // 새로운 속성에 대한 추가
       const createAttrHandler =
         attributeHandlers[key] || attributeHandlers.default;
       createAttrHandler(newValue, parentEl, key, originKey);
     } else {
+      // 재조정이 필요한 속성에 대한 절치치
       const reconcileHandlers =
         compareAttrHandlers[key] || compareAttrHandlers.default;
-      console.log("그래서 어디?", newValue);
-      //일단은 존재하는 속성 비교 조정
       reconcileHandlers(
         oldProps[originKey] as string,
         newValue as string,
-        parentEl,
+        parentEl
       );
+    }
+  });
+
+  // 제거된 속성 삭제
+  Object.keys(oldProps).forEach((key) => {
+    if (!(key in newProps)) {
+      if (key.startsWith("on")) {
+        const eventName = convertToEventType(key);
+        parentEl.removeEventListener(
+          eventName,
+          oldProps[key] as DOMEventHandler
+        );
+      } else {
+        parentEl.removeAttribute(key);
+      }
     }
   });
 }

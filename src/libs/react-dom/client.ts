@@ -146,18 +146,18 @@ export function createRoot(container?: HTMLElement) {
       if (!rootComponent) {
         return;
       }
-      newNode = rootComponent();
       if (!(rootElement instanceof HTMLElement) || !oldNode) {
         return;
       }
+      newNode = rootComponent();
 
-      // const parentElement =
-      //   rootElement.firstChild instanceof DocumentFragment
-      //     ? rootElement
-      //     : (rootElement.firstChild as HTMLElement);
-      // updateRender(oldNode, newNode, parentElement);
-      console.log(JSON.stringify(newNode, null, 2));
-      this.render(rootComponent);
+      const parentElement =
+        rootElement.firstChild instanceof DocumentFragment
+          ? rootElement
+          : (rootElement.firstChild as HTMLElement);
+      updateRender(oldNode, newNode, parentElement);
+      oldNode = newNode
+      // this.render(rootComponent);
     },
   };
 }
