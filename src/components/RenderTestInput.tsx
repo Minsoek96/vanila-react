@@ -15,7 +15,7 @@ interface Child {
  */
 export default function RenderTestInput() {
   const [text, setText] = useState<string>("");
-  const [children, setChildren] = useState<Child[]>([
+  const [data, setData] = useState<Child[]>([
     {
       id: 1,
       name: "Child",
@@ -32,11 +32,11 @@ export default function RenderTestInput() {
   const handleClick = () => {
     const newChild: Child = {
       id: Date.now(),
-      name: `Child-${children.length + 1}`,
+      name: `Child-${data.length + 1}`,
       createdAt: new Date(),
-      content: text.trim() || `Default content ${children.length + 1}`,
+      content: text.trim() || `Default content ${data.length + 1}`,
     };
-    setChildren((prev) => [...prev, newChild]);
+    setData((prev) => [...prev, newChild]);
     setText("");
   };
 
@@ -49,10 +49,10 @@ export default function RenderTestInput() {
         onChange={handleChange}
         placeHolder={"입력해주세요"}
       />
-      <h2>{children.length}</h2>
+      <h2>{data.length}</h2>
       <button onClick={handleClick}>Add Child</button>
-      {children.length > 0 &&
-        children.map((child) => {
+      {data.length > 0 &&
+        data.map((child) => {
           return (
             <div key={child.id}>
               <h3>{child.name}</h3>

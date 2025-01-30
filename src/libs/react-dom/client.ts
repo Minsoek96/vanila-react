@@ -1,7 +1,7 @@
 import { updateRender } from "@/libs/react-dom/updateRender";
 import { RenderVNode } from "@/libs/types";
 
-import { camelToKebab, convertToEventType } from "@/utils";
+import { camelToKebab, convertToEventType, isStringOrNumber, normalizeToArray } from "@/utils";
 
 /**
  * styleToString
@@ -28,10 +28,10 @@ function renderChildren(
   child: unknown,
   element: HTMLElement | DocumentFragment,
 ) {
-  const children = Array.isArray(child) ? child : [child];
+  const children = normalizeToArray(child);
 
   children.forEach((item) => {
-    const child = renderVNode(item);
+    const child = renderVNode(item as RenderVNode);
     element.append(child);
   });
   return element;
@@ -93,7 +93,7 @@ export const attributeHandlers: Record<string, AttributeHandler> = {
 export function renderVNode(vNode: RenderVNode): Node {
   const { type, props } = vNode;
 
-  if (typeof vNode === "string" || typeof vNode === "number") {
+  if (isStringOrNumber(vNode)) {
     return document.createTextNode(String(vNode));
   }
 
@@ -118,7 +118,7 @@ export function renderVNode(vNode: RenderVNode): Node {
   return element;
 }
 
-// TODO : const 변경 객체화에 대해서 생각해보기
+// RootStore
 let rootElement: HTMLElement | null = null;
 let rootComponent: (() => RenderVNode) | null = null;
 let oldNode: RenderVNode | null = null;
