@@ -6,7 +6,14 @@ interface Child {
   createdAt: Date;
   content: string;
 }
-export default function RenderTest() {
+
+/**
+ * RenderTestInput
+ *
+ * 1. Input 입력값 반영 테스트
+ * 2. 실시간 변화 값 테스트
+ */
+export default function RenderTestInput() {
   const [text, setText] = useState<string>("");
   const [children, setChildren] = useState<Child[]>([
     {
@@ -36,8 +43,6 @@ export default function RenderTest() {
   return (
     <div>
       {"붕붕붕붕"}
-      <div>df</div>
-      <div>sdd</div>
       <p>{text}</p>
       <input
         value={text}
@@ -46,15 +51,16 @@ export default function RenderTest() {
       />
       <h2>{children.length}</h2>
       <button onClick={handleClick}>Add Child</button>
-      {children.length > 0 && children.map((child) => {
-        return (
-          <div key={child.id}>
-            <h3>{child.name}</h3>
-            <p>{child.content}</p>
-            <small>Created: {child.createdAt.toLocaleString()}</small>
-          </div>
-        );
-      })}
+      {children.length > 0 &&
+        children.map((child) => {
+          return (
+            <div key={child.id}>
+              <h3>{child.name}</h3>
+              <p>{child.content}</p>
+              <small>Created: {child.createdAt.toLocaleString()}</small>
+            </div>
+          );
+        })}
     </div>
   );
 }

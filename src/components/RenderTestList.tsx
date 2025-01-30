@@ -1,6 +1,12 @@
 import { useState } from "@/libs/hooks";
 
-export default function RenderTestTwo() {
+/**
+ * RenderTestList
+ * 
+ * 1. 모듈화되지 않은 리스트를 테스트
+ * 2. 간단한 ADD, REMOVE 테스트
+ */
+export default function RenderTestList() {
   const [data, setData] = useState<string[]>([]);
 
   const addData = () => {

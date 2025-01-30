@@ -1,5 +1,5 @@
 /* eslint-disable curly */
-import { attributeHandlers, renderVNode } from "@/libs/react-dom/client";
+import { renderVNode } from "@/libs/react-dom/client";
 
 import { RenderVNode } from "@/libs/types";
 import { camelToKebab, convertToEventType } from "@/utils";
@@ -9,7 +9,8 @@ type DOMEventHandler = (event: Event) => void;
 type CompareHandler<T = unknown> = (
   oldValue: T,
   newValue: T,
-  parentEl: HTMLElement | DocumentFragment
+  parentEl: HTMLElement | DocumentFragment,
+  key?: string
 ) => void;
 
 type CompareHandlers = {
@@ -47,16 +48,16 @@ function handleStyleUpdate(
   });
 }
 
+const isNullish = (value: unknown): boolean =>
+  value === undefined || value === null;
+
 const getChildUpdateType = (
-  oldChild: unknown,
-  newChild: unknown
+  newChild: unknown,
+  currentChild: unknown,
 ): ChildUpdateType => {
-  if (!oldChild && newChild) {
-    return "ADD";
-  }
-  if (oldChild && !newChild) {
-    return "REMOVE";
-  }
+  if (newChild && isNullish(currentChild)) return "ADD";
+  if (isNullish(newChild) && currentChild) return "REMOVE";
+  if (newChild && currentChild) return "NEXT_CHILD";
   return "NEXT_CHILD";
 };
 
@@ -77,14 +78,14 @@ const compareAttrHandlers: CompareHandlers = {
       const newChildItem = newChildArray[i];
       const currentChild = currentChildren[i];
 
-      if (isPrimitive(oldChildItem) || isPrimitive(newChildItem)) {
+      if (isPrimitive(newChildItem)) {
         if (oldChildItem !== newChildItem && currentChild) {
           currentChild.textContent = String(newChildItem);
           continue;
         }
       }
 
-      const updateType = getChildUpdateType(oldChildItem, newChildItem);
+      const updateType = getChildUpdateType(newChildItem, currentChild);
 
       if (updateType === "ADD") {
         const newElement = renderVNode(newChildItem);
@@ -104,7 +105,11 @@ const compareAttrHandlers: CompareHandlers = {
   },
 
   style: (oldStyle, newStyle, parentEl) => {
-    handleStyleUpdate(oldStyle, newStyle, parentEl);
+    handleStyleUpdate(
+      oldStyle as Record<string, string>,
+      newStyle as Record<string, string>,
+      parentEl as HTMLElement,
+    );
   },
 
   value: (oldValue, newValue, parentEl) => {
@@ -113,24 +118,37 @@ const compareAttrHandlers: CompareHandlers = {
     }
   },
 
+  updateEvent: (oldHandler, newHandler, parentEl, key) => {
+    const eventType = convertToEventType(key as string);
+    if (oldHandler) {
+      parentEl.removeEventListener(eventType, oldHandler);
+    }
+    if (newHandler) {
+      parentEl.addEventListener(eventType, newHandler);
+    }
+  },
+
   default: (oldName, newName, parentEl) => {
-    // console.log(parentEl);
-    // console.log(oldName, "oldStyle");
-    // console.log(newName, "newStyle");
+    if (!(parentEl instanceof HTMLElement)) return;
+    if (newName) {
+      parentEl.removeAttribute(String(oldName));
+    } else if (oldName !== newName) {
+      parentEl.setAttribute(String(oldName), String(newName));
+    }
   },
 };
 
 /**TODO :
  *
  * 1. 삭제가 이상하게 동작하는 문제
- * 2. 카운터의 경우 정상 동작하지만, 내부 반환 값 불일치로 미작동 문제 (이벤트 최신화로 추정됨)
  * 3. getChildUpdateType이 오히려 더 복잡한 느낌 ?
  * 4. 전체적 코드 정리 필요
  *
- * 1. 아이템 추가의 경우도 일단은 OK 
+ * 1. 아이템 추가의 경우도 일단은 OK
  * 2. 글자 업데이트 OK
  * 3. 스타일 재조정 OK
  * 4. undefined 태그 문제 OK
+ * 2. 카운터의 경우 정상 동작하지만, 내부 반환 값 불일치로 미작동 문제 (이벤트 최신화로 추정됨) Ok
  * */
 export function updateRender(
   oldNode: RenderVNode,
@@ -150,8 +168,7 @@ export function updateRender(
   // 완전 다른 타입의 경우
   if (oldNode.type !== newNode.type) {
     const newEl = renderVNode(newNode);
-    parentEl.innerHTML = "";
-    parentEl.append(newEl);
+    parentEl.replaceWith(newEl);
     return;
   }
 
@@ -161,35 +178,28 @@ export function updateRender(
   Object.entries(newProps).forEach(([key, newValue]) => {
     const originKey = key;
     if (key.startsWith("on")) {
-      key = "addEvent";
+      key = "updateEvent";
     }
 
-    const isNewAttribute = !(originKey in oldProps);
-    if (isNewAttribute) {
-      // 새로운 속성에 대한 추가
-      const createAttrHandler =
-        attributeHandlers[key] || attributeHandlers.default;
-      createAttrHandler(newValue, parentEl, key, originKey);
-    } else {
-      // 재조정이 필요한 속성에 대한 절치치
-      const reconcileHandlers =
-        compareAttrHandlers[key] || compareAttrHandlers.default;
-      reconcileHandlers(
-        oldProps[originKey] as string,
-        newValue as string,
-        parentEl
-      );
-    }
+    // 재조정이 필요한 속성에 대한 절차
+    const reconcileHandler =
+      compareAttrHandlers[key] || compareAttrHandlers.default;
+    reconcileHandler(
+      oldProps[originKey] as string,
+      newValue as string,
+      parentEl,
+      originKey,
+    );
   });
 
   // 제거된 속성 삭제
   Object.keys(oldProps).forEach((key) => {
-    if (!(key in newProps)) {
+    if (!(key in newProps) && key !== "children") {
       if (key.startsWith("on")) {
         const eventName = convertToEventType(key);
         parentEl.removeEventListener(
           eventName,
-          oldProps[key] as DOMEventHandler
+          oldProps[key] as DOMEventHandler,
         );
       } else {
         parentEl.removeAttribute(key);

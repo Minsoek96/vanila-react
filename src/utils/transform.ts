@@ -10,6 +10,7 @@ const camelToKebab = (str: string): string => {
 // ex : Change : 'input'
 const SPECIAL_EVENT_MAPPINGS = {
   doubleClick: "dblclick",
+  change: "input",
 } as const;
 
 type EventMappingKey = keyof typeof SPECIAL_EVENT_MAPPINGS;
@@ -28,4 +29,7 @@ const convertToEventType = (str: string): string => {
   return SPECIAL_EVENT_MAPPINGS[standardType] || eventType;
 };
 
-export { camelToKebab, convertToEventType };
+const normalizeToArray = <T>(value: T | T[]): T[] =>
+  Array.isArray(value) ? value : [value];
+
+export { camelToKebab, convertToEventType, normalizeToArray };

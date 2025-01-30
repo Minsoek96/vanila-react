@@ -1,7 +1,6 @@
-// import { TodoContainer } from "@/components/todo";
-import RenderTestTwo from "@/components/RenderTestTwo";
+import { TodoContainer } from "@/components/todo";
 
-import { Header, Content, RenderTest } from "./components";
+import { Header, Counter, RenderTestInput, RenderTestList } from "./components";
 
 
 
@@ -10,16 +9,15 @@ import { Header, Content, RenderTest } from "./components";
 export const App = () => {
   return (
     <div>
-      {null}
       <div>{false}</div>
       <div>{null}</div>
       <div>{undefined}</div>
       <div>{0}</div>
-      <RenderTest />
-      <RenderTestTwo/>
-      {/* <Header />
-      <Content />
-      <TodoContainer /> */}
+      <RenderTestInput />
+      <RenderTestList/>
+      <Header />
+      <Counter />
+      <TodoContainer />
     </div>
   );
 };
