@@ -1,5 +1,5 @@
 /* eslint-disable curly */
-import { renderVNode } from "@/libs/react-dom/client";
+import { attributeHandlers, renderVNode } from "@/libs/react-dom/client";
 
 import { RenderVNode } from "@/libs/types";
 import {
@@ -160,7 +160,7 @@ const compareAttrHandlers: CompareHandlers = {
 /**TODO :
  *
  * 1. 전체적 코드 정리 필요
- * 2. 특정 케이스의 경우 스타일 변화 문제
+ * 2. 일부 케이스에서 useState -> state 반환이 최신 반영 안되는 문제
  *
  * 해결 된 것
  * 1. 아이템 추가의 경우도 일단은 OK
@@ -170,6 +170,7 @@ const compareAttrHandlers: CompareHandlers = {
  * 5. 카운터의 경우 정상 동작하지만, 내부 반환 값 불일치로 미작동 문제 (이벤트 최신화로 추정됨) Ok
  * 6. 삭제가 이상하게 동작하는 문제 ok props: {} props: {children: []}
  * 7. getChildUpdateType 코드는 길어져도 명확한 느낌
+ * 8. 특정 케이스의 경우 스타일 변화 문제 (없던 속성이 생겨나는것은 드문 케이스지만 boolean ? <A/> : <B/>)
  * */
 
 /**
@@ -208,10 +209,18 @@ export function updateRender(
   const allProps = { ...oldProps, ...newProps };
 
   // 속성 업데이트 처리
-  Object.entries(allProps).forEach(([key]) => {
+  Object.entries(allProps).forEach(([key, value]) => {
     const originKey = key;
     if (key.startsWith("on")) {
       key = "updateEvent";
+    }
+
+    const isNewAttriute = !(originKey in oldProps);
+    if (isNewAttriute && originKey !== "children") {
+      const createAttributeHandlers =
+        attributeHandlers[originKey] || attributeHandlers.default;
+      createAttributeHandlers(value, parentEl, key, originKey);
+      return;
     }
 
     const reconcileHandlers =
