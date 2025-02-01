@@ -1,10 +1,10 @@
 /* eslint-disable curly */
 import { attributeHandlers, renderVNode } from "@/libs/react-dom/client";
+import { addEventListener, removeEventListener } from "./syntheticEvent";
 
 import { RenderVNode } from "@/libs/types";
 import {
   camelToKebab,
-  convertToEventType,
   isNullish,
   isStringOrNumber,
   normalizeToArray,
@@ -138,12 +138,15 @@ const compareAttrHandlers: CompareHandlers = {
   },
 
   updateEvent: (oldHandler, newHandler, parentEl, key) => {
-    const eventType = convertToEventType(key as string);
+    if (!(parentEl instanceof HTMLElement) || !key) {
+      return;
+    }
+
     if (oldHandler) {
-      parentEl.removeEventListener(eventType, oldHandler);
+      removeEventListener(parentEl, key, oldHandler);
     }
     if (newHandler) {
-      parentEl.addEventListener(eventType, newHandler);
+      addEventListener(parentEl, key, newHandler);
     }
   },
 
@@ -237,9 +240,10 @@ export function updateRender(
   Object.keys(oldProps).forEach((key) => {
     if (!(key in newProps) && key !== "children") {
       if (key.startsWith("on")) {
-        const eventName = convertToEventType(key);
-        parentEl.removeEventListener(
-          eventName,
+        const eventType = key;
+        removeEventListener(
+          parentEl,
+          eventType,
           oldProps[key] as DOMEventHandler,
         );
       } else {
