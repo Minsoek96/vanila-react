@@ -30,7 +30,7 @@ export function resetStore() {
 }
 
 export function useState<T>(
-  initsialState: InitsialState<T>,
+  initsialState: InitsialState<T>
 ): [T, (newValue: SetStateAction<T>) => void] {
   const hookIdx = store.currentIndex;
 
@@ -53,4 +53,30 @@ export function useState<T>(
 
   store.currentIndex++;
   return [store.states[hookIdx], setState];
+}
+
+export function useEffect(
+  effect: () => void | (() => void),
+  deps?: any[],
+): void {
+  const hookIdx = store.currentIndex;
+  const oldHook = store.states[hookIdx];
+
+  let hasChanged = true;
+
+  if (deps && oldHook && oldHook.deps) {
+    hasChanged = deps.some((dep, i) => !Object.is(dep, oldHook.deps[i]));
+  }
+
+  if (hasChanged) {
+    queueMicrotask(() => {
+      if (typeof oldHook?.cleanup === "function") {
+        oldHook.cleanup();
+      }
+      const cleanup = effect();
+      store.states[hookIdx] = { deps, cleanup };
+    });
+  }
+
+  store.currentIndex++;
 }

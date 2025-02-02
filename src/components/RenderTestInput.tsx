@@ -1,4 +1,4 @@
-import { useState } from "@/libs/hooks";
+import { useEffect, useState } from "@/libs/hooks";
 
 interface Child {
   id: number;
@@ -39,6 +39,13 @@ export default function RenderTestInput() {
     setData((prev) => [...prev, newChild]);
     setText("");
   };
+
+  useEffect(() => {
+    console.log("Effect 실행", text);
+    return () => {
+      console.log("종료: text =", text);
+    };
+  }, [text]);
 
   return (
     <div>
