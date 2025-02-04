@@ -56,12 +56,10 @@ function addEventListener(
  * 이벤트 위임 시스템에 이벤트 핸들러를 제거
  * @param element - 이벤트를 제거할 엘리먼트
  * @param nativeEventType - 이벤트 타입
- * @param handler - 이벤트 함수
  */
 function removeEventListener(
   element: Element,
   nativeEventType: string,
-  handler: EventHandler,
 ) {
   const { rootElement } = rootStore().get();
   const eventType = convertToEventType(nativeEventType);
@@ -71,15 +69,8 @@ function removeEventListener(
     return;
   }
 
-  elementHandlers.delete(handler);
-
-  if (elementHandlers.size === 0) {
-    eventMap.get(eventType)?.delete(element);
-  }
-  if (eventMap.get(eventType)?.size === 0) {
-    eventMap.delete(eventType);
-    rootElement?.removeEventListener(eventType, delegatedEventHandler);
-  }
+  eventMap.delete(eventType);
+  rootElement?.removeEventListener(eventType, delegatedEventHandler);
 }
 
 /**

@@ -10,8 +10,6 @@ import {
   normalizeToArray,
 } from "@/utils";
 
-type DOMEventHandler = (event: Event) => void;
-
 type CompareHandler<T = unknown> = (
   oldValue: T,
   newValue: T,
@@ -143,7 +141,7 @@ const compareAttrHandlers: CompareHandlers = {
     }
 
     if (oldHandler) {
-      removeEventListener(parentEl, key, oldHandler);
+      removeEventListener(parentEl, key);
     }
     if (newHandler) {
       addEventListener(parentEl, key, newHandler);
@@ -244,7 +242,6 @@ export function updateRender(
         removeEventListener(
           parentEl,
           eventType,
-          oldProps[key] as DOMEventHandler,
         );
       } else {
         parentEl.removeAttribute(key);

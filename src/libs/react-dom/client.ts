@@ -178,7 +178,6 @@ export function createRoot(container?: HTMLElement) {
       if (!(rootElement instanceof HTMLElement) || !oldNode) {
         return;
       }
-
       const newNode = rootComponent();
       set("newNode", newNode);
 
