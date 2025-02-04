@@ -24,8 +24,6 @@ type CompareHandlers = {
   default: CompareHandler;
 };
 
-type ChildUpdateType = "ADD" | "REMOVE" | "NEXT_CHILD";
-
 /**
  * handleStyleUpdate
  *
@@ -59,25 +57,6 @@ function handleStyleUpdate(
 }
 
 /**
- * getChildUpdateType
- *
- * 자식 노드의 업데이트 타입을 결정하는 함수
- *
- * @param newChild - 비교할 새로운 자식 노드
- * @param currentChild - DOM에 현재 존재하는 자식 노드
- * @returns {ChildUpdateType} - 필요한 업데이트 타입
- */
-const getChildUpdateType = (
-  newChild: unknown,
-  currentChild: unknown,
-): ChildUpdateType => {
-  if (newChild && isNullish(currentChild)) return "ADD";
-  if (isNullish(newChild) && currentChild) return "REMOVE";
-  if (newChild && currentChild) return "NEXT_CHILD";
-  return "NEXT_CHILD";
-};
-
-/**
  * compareAttrHandlers
  *
  * 다양한 속성 타입에 대한 비교 및 업데이트 처리 핸들러
@@ -102,20 +81,18 @@ const compareAttrHandlers: CompareHandlers = {
         }
       }
 
-      const updateType = getChildUpdateType(newChildItem, currentChild);
-
-      if (updateType === "ADD") {
+      if (newChildItem && isNullish(currentChild)) {
         const newElement = renderVNode(newChildItem);
         parentEl.appendChild(newElement);
         continue;
       }
 
-      if (updateType === "REMOVE") {
+      if (isNullish(newChildItem) && currentChild) {
         parentEl.removeChild(currentChild);
         continue;
       }
 
-      if (updateType === "NEXT_CHILD") {
+      if (newChildItem && currentChild) {
         updateRender(oldChildItem, newChildItem, currentChild as HTMLElement);
       }
     }
