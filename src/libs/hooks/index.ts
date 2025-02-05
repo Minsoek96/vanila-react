@@ -11,7 +11,6 @@ type Store = {
 
   effects: any[];
   depsIndex: number;
-  cleanups: (() => void)[];
 };
 
 const store: Store = {
@@ -22,7 +21,6 @@ const store: Store = {
   //useEffect
   effects: [],
   depsIndex: 0,
-  cleanups: [],
 };
 
 /**
@@ -35,7 +33,7 @@ function reRender() {
 
 export function resetStore() {
   store.currentIndex = 0;
-  resetEffectStore();
+  store.depsIndex = 0;
 }
 
 export function useState<T>(
@@ -64,10 +62,11 @@ export function useState<T>(
   return [store.states[hookIdx], setState];
 }
 
-export function resetEffectStore() {
-  store.depsIndex = 0;
-}
-
+/**TODO :
+ * cleanup 실행 시점 잡기
+ * unmount상태 updateRender Remove시
+ * 정확한 대상 고유한 ID를 식별할 방법 모색하기
+ */
 export function useEffect(
   effect: () => void | (() => void),
   deps?: any[],
@@ -83,29 +82,12 @@ export function useEffect(
 
   if (hasChanged) {
     queueMicrotask(() => {
-      if (oldHook?.cleanup) {
-        oldHook.cleanup();
-      }
-
-      const cleanup = effect();
+      effect();
       store.effects[hookIdx] = {
         deps,
-        cleanup: typeof cleanup === "function" ? cleanup : undefined,
       };
-
-      if (typeof cleanup === "function") {
-        store.cleanups[hookIdx] = cleanup;
-      }
     });
   }
 
   store.depsIndex++;
-}
-
-export function effectCleanup() {
-  const currentIdx = store.depsIndex;
-  if (store.cleanups[currentIdx]) {
-    store.cleanups[currentIdx]();
-    store.effects[currentIdx] = undefined;
-  }
 }
