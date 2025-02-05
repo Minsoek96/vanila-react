@@ -8,16 +8,24 @@ type SetStateAction<T> = T | ((prevState: T) => T);
 type Store = {
   states: any[];
   currentIndex: number;
+
+  effects: any[];
+  depsIndex: number;
+  cleanups: (() => void)[];
 };
 
 const store: Store = {
+  //useState
   states: [],
   currentIndex: 0,
+
+  //useEffect
+  effects: [],
+  depsIndex: 0,
+  cleanups: [],
 };
 
 /**
- * reRender
- *
  * 현재 client 상태와 연결 해주는 함수
  */
 function reRender() {
@@ -27,10 +35,11 @@ function reRender() {
 
 export function resetStore() {
   store.currentIndex = 0;
+  resetEffectStore();
 }
 
 export function useState<T>(
-  initsialState: InitsialState<T>
+  initsialState: InitsialState<T>,
 ): [T, (newValue: SetStateAction<T>) => void] {
   const hookIdx = store.currentIndex;
 
@@ -55,12 +64,16 @@ export function useState<T>(
   return [store.states[hookIdx], setState];
 }
 
+export function resetEffectStore() {
+  store.depsIndex = 0;
+}
+
 export function useEffect(
   effect: () => void | (() => void),
   deps?: any[],
 ): void {
-  const hookIdx = store.currentIndex;
-  const oldHook = store.states[hookIdx];
+  const hookIdx = store.depsIndex;
+  const oldHook = store.effects[hookIdx];
 
   let hasChanged = true;
 
@@ -70,13 +83,29 @@ export function useEffect(
 
   if (hasChanged) {
     queueMicrotask(() => {
-      if (typeof oldHook?.cleanup === "function") {
+      if (oldHook?.cleanup) {
         oldHook.cleanup();
       }
+
       const cleanup = effect();
-      store.states[hookIdx] = { deps, cleanup };
+      store.effects[hookIdx] = {
+        deps,
+        cleanup: typeof cleanup === "function" ? cleanup : undefined,
+      };
+
+      if (typeof cleanup === "function") {
+        store.cleanups[hookIdx] = cleanup;
+      }
     });
   }
 
-  store.currentIndex++;
+  store.depsIndex++;
+}
+
+export function effectCleanup() {
+  const currentIdx = store.depsIndex;
+  if (store.cleanups[currentIdx]) {
+    store.cleanups[currentIdx]();
+    store.effects[currentIdx] = undefined;
+  }
 }

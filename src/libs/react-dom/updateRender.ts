@@ -1,6 +1,6 @@
-/* eslint-disable curly */
 import { attributeHandlers, renderVNode } from "@/libs/react-dom/client";
 import { addEventListener, removeEventListener } from "./syntheticEvent";
+import { effectCleanup } from "@/libs/hooks";
 
 import { RenderVNode } from "@/libs/types";
 import {
@@ -9,6 +9,7 @@ import {
   isStringOrNumber,
   normalizeToArray,
 } from "@/utils";
+
 
 type CompareHandler<T = unknown> = (
   oldValue: T,
@@ -23,6 +24,8 @@ type CompareHandlers = {
   style: CompareHandler;
   default: CompareHandler;
 };
+
+type ChildUpdateType = "ADD" | "REMOVE" | "CHANGE";
 
 /**
  * handleStyleUpdate
@@ -39,7 +42,9 @@ function handleStyleUpdate(
   newStyle: Record<string, string>,
   element: HTMLElement,
 ) {
-  if (!oldStyle || !newStyle) return;
+  if (!oldStyle || !newStyle) {
+    return;
+  };
 
   // 제거된 스타일 처리
   Object.keys(oldStyle).forEach((key) => {
@@ -55,6 +60,30 @@ function handleStyleUpdate(
     }
   });
 }
+
+/**
+ * getChildUpdateType
+ *
+ * 자식 노드의 업데이트 타입을 결정하는 함수
+ *
+ * @param newChild - 비교할 새로운 자식 노드
+ * @param currentChild - DOM에 현재 존재하는 자식 노드
+ * @returns {ChildUpdateType} - 필요한 업데이트 타입
+ */
+const getChildUpdateType = (
+  newChild: unknown,
+  currentChild: unknown,
+): ChildUpdateType => {
+  if (newChild && isNullish(currentChild)) {
+    return "ADD";
+  }
+
+  if (isNullish(newChild) && currentChild) {
+    return "REMOVE";
+  }
+
+  return "CHANGE";
+};
 
 /**
  * compareAttrHandlers
@@ -81,18 +110,21 @@ const compareAttrHandlers: CompareHandlers = {
         }
       }
 
-      if (newChildItem && isNullish(currentChild)) {
+      const updateType = getChildUpdateType(newChildItem, currentChild);
+
+      if (updateType === "ADD") {
         const newElement = renderVNode(newChildItem);
         parentEl.appendChild(newElement);
         continue;
       }
 
-      if (isNullish(newChildItem) && currentChild) {
+      if (updateType === "REMOVE") {
+        effectCleanup();
         parentEl.removeChild(currentChild);
         continue;
       }
 
-      if (newChildItem && currentChild) {
+      if (updateType === "CHANGE") {
         updateRender(oldChildItem, newChildItem, currentChild as HTMLElement);
       }
     }
@@ -126,7 +158,10 @@ const compareAttrHandlers: CompareHandlers = {
   },
 
   default: (oldName, newName, parentEl) => {
-    if (!(parentEl instanceof HTMLElement)) return;
+    if (!(parentEl instanceof HTMLElement)) {
+      return;
+    };
+
     if (newName) {
       parentEl.removeAttribute(String(oldName));
     } else if (oldName !== newName) {
@@ -216,10 +251,7 @@ export function updateRender(
     if (!(key in newProps) && key !== "children") {
       if (key.startsWith("on")) {
         const eventType = key;
-        removeEventListener(
-          parentEl,
-          eventType,
-        );
+        removeEventListener(parentEl, eventType);
       } else {
         parentEl.removeAttribute(key);
       }

@@ -1,6 +1,7 @@
 import { TodoContainer } from "@/components/todo";
 
 import { Header, Counter, RenderTestInput, RenderTestList } from "./components";
+import EffectTest from "@/components/EffectTest";
 
 
 
@@ -18,6 +19,7 @@ export const App = () => {
       <Header />
       <Counter />
       <TodoContainer />
+      <EffectTest/>
     </div>
   );
 };
