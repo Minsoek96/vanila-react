@@ -2,7 +2,7 @@ import { createRoot } from "@/libs/react-dom/client";
 
 import { batchUpdate } from "./batchUpdate";
 
-type InitsialState<T> = null | T;
+type InitialState<T> = null | T;
 type SetStateAction<T> = T | ((prevState: T) => T);
 
 type Store = {
@@ -37,12 +37,12 @@ export function resetStore() {
 }
 
 export function useState<T>(
-  initsialState: InitsialState<T>,
+  initialState: InitialState<T>,
 ): [T, (newValue: SetStateAction<T>) => void] {
   const hookIdx = store.currentIndex;
 
   if (store.states[hookIdx] === undefined) {
-    store.states[hookIdx] = initsialState;
+    store.states[hookIdx] = initialState;
   }
 
   const setState = (newState: SetStateAction<T>) => {
