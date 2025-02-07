@@ -1,7 +1,7 @@
 import { useState } from "@/libs/hooks";
 
 export default function Header() {
-  const [currentItem, setCurrentItem] = useState(0);
+  const [currentItem, setCurrentItem] = useState<number>(0);
   const MENU_ITEMS = ["first", "second", "third"] as const;
 
   const handleClick = (item: number) => {

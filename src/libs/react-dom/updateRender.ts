@@ -9,7 +9,6 @@ import {
   normalizeToArray,
 } from "@/utils";
 
-
 type CompareHandler<T = unknown> = (
   oldValue: T,
   newValue: T,
@@ -43,7 +42,7 @@ function handleStyleUpdate(
 ) {
   if (!oldStyle || !newStyle) {
     return;
-  };
+  }
 
   // 제거된 스타일 처리
   Object.keys(oldStyle).forEach((key) => {
@@ -65,19 +64,19 @@ function handleStyleUpdate(
  *
  * 자식 노드의 업데이트 타입을 결정하는 함수
  *
- * @param newChild - 비교할 새로운 자식 노드
- * @param currentChild - DOM에 현재 존재하는 자식 노드
+ * @param oldChild - 오래된 자식 노드
+ * @param newChild - 새로운 자식 노드
  * @returns {ChildUpdateType} - 필요한 업데이트 타입
  */
 const getChildUpdateType = (
+  oldChild: unknown,
   newChild: unknown,
-  currentChild: unknown,
 ): ChildUpdateType => {
-  if (newChild && isNullish(currentChild)) {
+  if (isNullish(oldChild) && newChild) {
     return "ADD";
   }
 
-  if (isNullish(newChild) && currentChild) {
+  if (oldChild && isNullish(newChild)) {
     return "REMOVE";
   }
 
@@ -102,6 +101,15 @@ const compareAttrHandlers: CompareHandlers = {
       const newChildItem = newChildArray[i];
       const currentChild = currentChildren[i];
 
+      //Fragment 처리
+      if (
+        newChildItem?.type === "fragment" ||
+        oldChildItem?.type === "fragment"
+      ) {
+        updateRender(oldChildItem, newChildItem, parentEl as HTMLElement);
+        continue;
+      }
+
       if (isStringOrNumber(newChildItem)) {
         if (oldChildItem !== newChildItem && currentChild) {
           currentChild.textContent = String(newChildItem);
@@ -109,7 +117,7 @@ const compareAttrHandlers: CompareHandlers = {
         }
       }
 
-      const updateType = getChildUpdateType(newChildItem, currentChild);
+      const updateType = getChildUpdateType(oldChildItem, newChildItem);
 
       if (updateType === "ADD") {
         const newElement = renderVNode(newChildItem);
@@ -158,7 +166,7 @@ const compareAttrHandlers: CompareHandlers = {
   default: (oldName, newName, parentEl) => {
     if (!(parentEl instanceof HTMLElement)) {
       return;
-    };
+    }
 
     if (newName) {
       parentEl.removeAttribute(String(oldName));
@@ -211,6 +219,12 @@ export function updateRender(
   // 엘리먼트 타입이 변경된 경우 전체 교체
   if (oldNode.type !== newNode.type) {
     const newEl = renderVNode(newNode);
+    //타입이 fragment의 경우
+    if (oldNode.type === 'fragment' || newNode.type === "fragment") {
+      parentEl.innerHTML = "";
+      parentEl.append(newEl)
+      return;
+    }
     parentEl.replaceWith(newEl);
     return;
   }

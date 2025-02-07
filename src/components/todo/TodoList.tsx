@@ -26,7 +26,7 @@ export default function TodoList({
   return (
     <section style={{ width: "80%", maxWidth: "50rem" }}>
       <ul>
-        {todos.map((todo) => (
+        {todos.length > 0 && todos.map((todo) => (
           <TodoItem
             key={todo.id}
             todo={todo}

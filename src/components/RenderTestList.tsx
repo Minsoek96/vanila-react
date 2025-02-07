@@ -24,7 +24,7 @@ export default function RenderTestList() {
       <p>{data.length}</p>
       <button onClick={addData}>클릭</button>
       <section>
-        {data.map((item) => (
+        {data.length > 0 && data.map((item) => (
           <div key={item} onClick={() => removeData(item)}>
             새롭게 생겨난
             <p>{item}</p>

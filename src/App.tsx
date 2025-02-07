@@ -18,8 +18,8 @@ export const App = () => {
       <RenderTestList/>
       <Header />
       <Counter />
-      <TodoContainer />
       <EffectTest/>
+      <TodoContainer />
     </div>
   );
 };
