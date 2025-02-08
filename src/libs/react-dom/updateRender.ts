@@ -106,7 +106,18 @@ const compareAttrHandlers: CompareHandlers = {
         newChildItem?.type === "fragment" ||
         oldChildItem?.type === "fragment"
       ) {
-        updateRender(oldChildItem, newChildItem, parentEl as HTMLElement);
+        const hasSiblings = currentChildren.length > 1;
+        const isTypeMissMath = newChildItem.type !== oldChildItem.type;
+
+        if (isTypeMissMath && hasSiblings && parentEl instanceof HTMLElement) {
+          parentEl.innerHTML = "";
+          newChildArray.forEach((child) => {
+            const newNode = renderVNode(child);
+            parentEl.appendChild(newNode);
+          });
+        } else {
+          updateRender(oldChildItem, newChildItem, parentEl as HTMLElement);
+        }
         continue;
       }
 
@@ -220,9 +231,9 @@ export function updateRender(
   if (oldNode.type !== newNode.type) {
     const newEl = renderVNode(newNode);
     //타입이 fragment의 경우
-    if (oldNode.type === 'fragment' || newNode.type === "fragment") {
+    if (oldNode.type === "fragment" || newNode.type === "fragment") {
       parentEl.innerHTML = "";
-      parentEl.append(newEl)
+      parentEl.append(newEl);
       return;
     }
     parentEl.replaceWith(newEl);
