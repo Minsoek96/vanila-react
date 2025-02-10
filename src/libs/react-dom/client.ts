@@ -1,7 +1,12 @@
 import { updateRender } from "@/libs/react-dom/updateRender";
 import { RenderVNode } from "@/libs/types";
+import { addEventListener } from "./syntheticEvent";
 
-import { camelToKebab, convertToEventType, isStringOrNumber, normalizeToArray } from "@/utils";
+import {
+  camelToKebab,
+  isStringOrNumber,
+  normalizeToArray,
+} from "@/utils";
 
 /**
  * styleToString
@@ -76,9 +81,8 @@ export const attributeHandlers: Record<string, AttributeHandler> = {
     }
 
     try {
-      const eventType = convertToEventType(originKey);
       const handler = value as EventListener;
-      element.addEventListener(eventType, handler);
+      addEventListener(element, originKey, handler);
     } catch (error) {
       console.error(`Failed to add event listener for ${originKey}:`, error);
     }
@@ -119,45 +123,71 @@ export function renderVNode(vNode: RenderVNode): Node {
 }
 
 // RootStore
-let rootElement: HTMLElement | null = null;
-let rootComponent: (() => RenderVNode) | null = null;
-let oldNode: RenderVNode | null = null;
-let newNode: RenderVNode | null = null;
+type RootStore = {
+  rootElement: HTMLElement | null;
+  rootComponent: (() => RenderVNode) | null;
+  oldNode: RenderVNode | null;
+  newNode: RenderVNode | null;
+};
+
+const store: RootStore = {
+  rootElement: null,
+  rootComponent: null,
+  oldNode: null,
+  newNode: null,
+};
+
+export const rootStore = () => ({
+  get: () => store,
+  set: (key: keyof RootStore, value: any) => {
+    store[key] = value;
+  },
+});
 
 export function createRoot(container?: HTMLElement) {
+  const { set, get } = rootStore();
+
   if (container) {
-    rootElement = container;
+    set("rootElement", container);
   }
+
   return {
     render(component: () => RenderVNode) {
-      rootComponent = component;
+      set("rootComponent", component);
+      const { rootElement, rootComponent } = get();
+
       if (!rootElement || !rootComponent) {
         return;
       }
+
       rootElement.innerHTML = "";
       const element = renderVNode(rootComponent());
       if (element) {
         rootElement.appendChild(element);
       }
-      oldNode = rootComponent();
+      set("oldNode", rootComponent());
     },
 
     update() {
+      const { rootComponent, rootElement, oldNode } = get();
+
       if (!rootComponent) {
         return;
       }
+
       if (!(rootElement instanceof HTMLElement) || !oldNode) {
         return;
       }
-      newNode = rootComponent();
+      const newNode = rootComponent();
+      set("newNode", newNode);
 
       const parentElement =
         rootElement.firstChild instanceof DocumentFragment
           ? rootElement
           : (rootElement.firstChild as HTMLElement);
+
       updateRender(oldNode, newNode, parentElement);
-      oldNode = newNode
-      // this.render(rootComponent);
+      set("oldNode", newNode);
     },
   };
 }

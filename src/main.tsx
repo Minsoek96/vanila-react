@@ -1,6 +1,6 @@
 import { App } from "./App";
 
-import { createRoot } from "@/libs/react-dom/client";
+import { createRoot } from "@/libs/react-dom";
 
 function main() {
   const container = document.getElementById("app");
