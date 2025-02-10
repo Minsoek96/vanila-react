@@ -1,6 +1,7 @@
+import { updateRender } from "@/libs/react-dom/updateRender";
 import { RenderVNode } from "@/libs/types";
 
-import { camelToKebab, convertToEventType } from "@/utils";
+import { camelToKebab, convertToEventType, isStringOrNumber, normalizeToArray } from "@/utils";
 
 /**
  * styleToString
@@ -27,10 +28,10 @@ function renderChildren(
   child: unknown,
   element: HTMLElement | DocumentFragment,
 ) {
-  const children = Array.isArray(child) ? child : [child];
+  const children = normalizeToArray(child);
 
   children.forEach((item) => {
-    const child = renderVNode(item);
+    const child = renderVNode(item as RenderVNode);
     element.append(child);
   });
   return element;
@@ -51,7 +52,7 @@ type AttributeHandler = (
  * default: 기본 속성 처리
  * addEvent: 이벤트 등록 처리
  */
-const attributeHandlers: Record<string, AttributeHandler> = {
+export const attributeHandlers: Record<string, AttributeHandler> = {
   children: (value, element) => {
     renderChildren(value, element);
   },
@@ -89,10 +90,10 @@ const attributeHandlers: Record<string, AttributeHandler> = {
  *
  * VDOM을 실제 DOM으로 변환
  */
-function renderVNode(vNode: RenderVNode): Node {
+export function renderVNode(vNode: RenderVNode): Node {
   const { type, props } = vNode;
 
-  if (typeof vNode === "string" || typeof vNode === "number") {
+  if (isStringOrNumber(vNode)) {
     return document.createTextNode(String(vNode));
   }
 
@@ -117,8 +118,12 @@ function renderVNode(vNode: RenderVNode): Node {
   return element;
 }
 
+// RootStore
 let rootElement: HTMLElement | null = null;
 let rootComponent: (() => RenderVNode) | null = null;
+let oldNode: RenderVNode | null = null;
+let newNode: RenderVNode | null = null;
+
 export function createRoot(container?: HTMLElement) {
   if (container) {
     rootElement = container;
@@ -134,13 +139,25 @@ export function createRoot(container?: HTMLElement) {
       if (element) {
         rootElement.appendChild(element);
       }
+      oldNode = rootComponent();
     },
 
     update() {
       if (!rootComponent) {
         return;
       }
-      this.render(rootComponent);
+      if (!(rootElement instanceof HTMLElement) || !oldNode) {
+        return;
+      }
+      newNode = rootComponent();
+
+      const parentElement =
+        rootElement.firstChild instanceof DocumentFragment
+          ? rootElement
+          : (rootElement.firstChild as HTMLElement);
+      updateRender(oldNode, newNode, parentElement);
+      oldNode = newNode
+      // this.render(rootComponent);
     },
   };
 }

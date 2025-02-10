@@ -16,7 +16,7 @@ export default function ViewMode({
   onRemove,
 }: ViewModeProps) {
   return (
-    <>
+    <div>
       <div
         onClick={() => onToggle(todo.id)}
         style={{
@@ -42,6 +42,6 @@ export default function ViewMode({
           삭제
         </button>
       </div>
-    </>
+    </div>
   );
 }
