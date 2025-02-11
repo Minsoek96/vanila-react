@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - main
+  pull_request:  # PR 생성 시 실행되도록 추가
+    branches:
+      - main
 
 jobs:
   build:
@@ -29,11 +32,6 @@ jobs:
 
       - name: Debug Build Directory
         run: ls -l
-
-      - name: Install AWS CLI
-        run: |
-          sudo apt update
-          sudo apt install -y awscli
 
       - name: Deploy to S3
         env:
