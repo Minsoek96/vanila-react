@@ -1,5 +1,9 @@
 type Props = Record<string, unknown> | null;
 
+type PropsWithChildren<P> = P & Props & {
+  children?: VNode | VNode[] | null;
+};
+
 type VNode = {
   type: Component;
   props: Props;
@@ -12,4 +16,4 @@ type RenderVNode = Omit<VNode, "type"> & {
 
 type Component = string | ((props: Props) => VNode) | VNode;
 
-export type { Props, VNode, Component, RenderVNode };
+export type { Props, VNode, Component, RenderVNode, PropsWithChildren };

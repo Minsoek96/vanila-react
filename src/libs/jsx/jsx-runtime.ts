@@ -31,12 +31,12 @@ const normalizeChildren = (children: unknown) => {
 
 export const Fragment = "fragment";
 
-export function jsx(type: Component, props: Props): VNode {
+export function jsx(type: Component, props: Props, key: string): VNode {
   if (typeof type === "function") {
     return type(props);
   }
 
-  const { key, children, ...rest } = props || {};
+  const { children, ...rest } = props || {};
   const nodes = normalizeChildren(children);
 
   return {

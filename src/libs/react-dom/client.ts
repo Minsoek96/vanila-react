@@ -2,11 +2,7 @@ import { updateRender } from "@/libs/react-dom/updateRender";
 import { RenderVNode } from "@/libs/types";
 import { addEventListener } from "./syntheticEvent";
 
-import {
-  camelToKebab,
-  isStringOrNumber,
-  normalizeToArray,
-} from "@/utils";
+import { camelToKebab, isStringOrNumber, normalizeToArray } from "@/utils";
 
 /**
  * styleToString
@@ -161,11 +157,12 @@ export function createRoot(container?: HTMLElement) {
       }
 
       rootElement.innerHTML = "";
-      const element = renderVNode(rootComponent());
+      const initialNode = rootComponent();
+      const element = renderVNode(initialNode);
       if (element) {
         rootElement.appendChild(element);
       }
-      set("oldNode", rootComponent());
+      set("oldNode", initialNode);
     },
 
     update() {

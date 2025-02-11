@@ -21,8 +21,8 @@ export default function TodoItem({
   onUpdate,
   onRemove,
 }: TodoItemProps) {
-  const [isEdit, setIsEdit] = useState<boolean>(false);
   const [text, setText] = useState<string>(todo.text);
+  const [isEdit, setIsEdit] = useState<boolean>(false);
 
   // 적용
   const handleSubmit = (e: Event) => {

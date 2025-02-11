@@ -1,11 +1,9 @@
 import { TodoContainer } from "@/components/todo";
 
-import { Header, Counter, RenderTestInput, RenderTestList } from "./components";
+import { ReconciliationTest } from "@/components/reconciliation-test";
 
 
 
-//TODO : 단일 자식의 경우 약간의 문제 있음
-// 수정 요망
 export const App = () => {
   return (
     <div>
@@ -13,10 +11,7 @@ export const App = () => {
       <div>{null}</div>
       <div>{undefined}</div>
       <div>{0}</div>
-      <RenderTestInput />
-      <RenderTestList/>
-      <Header />
-      <Counter />
+      <ReconciliationTest/>
       <TodoContainer />
     </div>
   );
