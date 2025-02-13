@@ -73,24 +73,35 @@ function removeEventListener(
   rootElement?.removeEventListener(eventType, delegatedEventHandler);
 }
 
+interface SyntheticEvent extends Event {
+  currentTarget: Element;
+  target: EventTarget | null;
+  isPropagationStopped: boolean;
+  preventDefault(): void;
+  stopPropagation(): void;
+}
 /**
  * 네이티브 이벤트를 합성 이벤트로 변환
  * @param nativeEvent - 브라우저의 네이티브 이벤트 객체
  * @param currentNode - 현재 이벤트가 처리되고 있는 엘리먼트
  * @returns 합성 이벤트 객체
  */
-function createSyntheticEvent(nativeEvent: Event, currentNode: Element) {
-  return {
+function createSyntheticEvent(nativeEvent: Event, currentNode: Element): SyntheticEvent {
+  const syntheticEvent = {
     ...nativeEvent,
     currentTarget: currentNode,
     target: nativeEvent.target,
+    isPropagationStopped: false,
     preventDefault() {
       nativeEvent.preventDefault();
     },
     stopPropagation() {
       nativeEvent.stopPropagation();
+      this.isPropagationStopped = true;
     },
   };
+
+  return syntheticEvent;
 }
 
 /**
@@ -106,11 +117,17 @@ function delegatedEventHandler(nativeEvent: Event) {
     return;
   }
 
-  while (currentNode) {
+  const syntheticEvent = createSyntheticEvent(nativeEvent, currentNode);
+
+  while (currentNode && !syntheticEvent.isPropagationStopped) {
     const elementHandlers = handlers.get(currentNode);
     if (elementHandlers) {
-      const syntheticEvent = createSyntheticEvent(nativeEvent, currentNode);
-      elementHandlers.forEach((handler) => handler(syntheticEvent));
+      syntheticEvent.currentTarget = currentNode;
+      elementHandlers.forEach((handler) => {
+        if (!syntheticEvent.isPropagationStopped) {
+          handler(syntheticEvent);
+        }
+      });
     }
     currentNode = currentNode.parentElement!;
   }
