@@ -1,6 +1,17 @@
+import { getRouteComponent } from "@/routes";
 import { createRoot } from "@/libs/react-dom";
 
-import { App } from "@/App";
+import NavBar from "@/components/nav";
+
+function RootLayout() {
+  const currentPath = getRouteComponent();
+  return (
+    <div>
+      <NavBar/>
+      {currentPath}
+    </div>
+  );
+}
 
 function main() {
   const container = document.getElementById("app");
@@ -11,7 +22,7 @@ function main() {
 
   const root = createRoot(container);
   root.render(() => {
-    return <App />;
+    return <RootLayout />;
   });
 }
 main();

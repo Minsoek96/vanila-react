@@ -151,7 +151,6 @@ export function createRoot(container?: HTMLElement) {
     render(component: () => RenderVNode) {
       set("rootComponent", component);
       const { rootElement, rootComponent } = get();
-
       if (!rootElement || !rootComponent) {
         return;
       }
