@@ -1,3 +1,4 @@
+import { Link } from "@/libs/router";
 import { styleMixin } from "@/style";
 
 export default function NavBar() {
@@ -23,9 +24,9 @@ export default function NavBar() {
 
   return (
     <nav style={navStyle}>
-      <a href={'/'} style={linkStyle} className="nav-link">Home</a>
-      <a href={'/todo'} style={linkStyle} className="nav-link">Todo</a>
-      <a href={'/test'} style={linkStyle} className="nav-link">Test</a>
+      <Link to={'/'} style={linkStyle} className="nav-link">Home</Link>
+      <Link to={'/todo'} style={linkStyle} className="nav-link">Todo</Link>
+      <Link to={'/test'} style={linkStyle} className="nav-link">Test</Link>
     </nav>
   );
 }

@@ -21,6 +21,17 @@ function main() {
   }
 
   const root = createRoot(container);
+
+  //경로 변경 이벤트 등록
+  window.addEventListener('routechange', () => {
+    root.update();
+  });
+
+  //네비게이션 이벤트 등록
+  window.addEventListener('popstate', () => {
+    root.update();
+  });
+
   root.render(() => {
     return <RootLayout />;
   });
