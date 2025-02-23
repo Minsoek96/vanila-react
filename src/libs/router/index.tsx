@@ -50,13 +50,9 @@ function Link({ children, to, ...props }: PropsWithChildren<LinkProps>) {
     e.preventDefault();
 
     if (window.location.pathname === to) {
-      console.log("Prevented duplicate route:", {
-        currentPath: window.location.pathname,
-        attemptedPath: to,
-        historyLength: window.history.length,
-      });
       return;
     }
+    
     window.history.pushState({}, "", to);
     //경로 변경을 전파
     window.dispatchEvent(new CustomEvent("routechange"));
