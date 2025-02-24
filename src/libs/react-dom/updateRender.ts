@@ -1,7 +1,7 @@
-import { attributeHandlers, renderVNode } from "@/libs/react-dom/client";
+import { attributeHandlers, renderVNode } from "@/libs/react-dom/renderVnode";
 import { addEventListener, removeEventListener } from "./syntheticEvent";
 
-import { RenderVNode } from "@/libs/types";
+import { type RenderVNode } from "@/libs/types";
 import {
   camelToKebab,
   isNullish,
