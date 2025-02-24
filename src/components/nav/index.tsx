@@ -24,9 +24,9 @@ export default function NavBar() {
 
   return (
     <nav style={navStyle}>
-      <Link to={'/'} style={linkStyle} className="nav-link">Home</Link>
-      <Link to={'/todo'} style={linkStyle} className="nav-link">Todo</Link>
-      <Link to={'/test'} style={linkStyle} className="nav-link">Test</Link>
+      <Link to={'/'} style={linkStyle}>Home</Link>
+      <Link to={'/todo'} style={linkStyle}>Todo</Link>
+      <Link to={'/test'} style={linkStyle}>Test</Link>
     </nav>
   );
 }
