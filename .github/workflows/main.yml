@@ -34,7 +34,7 @@ jobs:
         run: ls -l dist || echo "dist/ directory not found"
 
       - name: Upload build artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: dist
           path: dist/
@@ -45,7 +45,7 @@ jobs:
     needs: build # build가 성공해야 deploy 실행
     steps:
       - name: Download build artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: dist
           path: dist
