@@ -110,7 +110,7 @@ const ChildrenTest = () => {
   return (
     <TestContainer title="2. Add Child/Remove Child">
       <div style={{ border: "1px solid #ccc", padding: "1rem" }}>
-        {children.map((item, i) => (
+        {children.length > 0 && children.map((item, i) => (
           <div
             key={i}
             onClick={() => handleRemove(item.id)}

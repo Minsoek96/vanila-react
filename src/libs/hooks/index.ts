@@ -36,12 +36,20 @@ export function resetStore() {
   store.depsIndex = 0;
 }
 
+/** TODO : 현재의 해결 방식은 임시적인 방편
+ * 타입의 같은 경우의 케이스의 경우 초기값이 다르다면 문제가 됨
+ * state값을 변경하는 방식을 변경해야함
+ */
+
 export function useState<T>(
   initialState: InitialState<T>,
 ): [T, (newValue: SetStateAction<T>) => void] {
   const hookIdx = store.currentIndex;
 
-  if (store.states[hookIdx] === undefined) {
+  if (
+    store.states[hookIdx] === undefined ||
+    typeof store.states[hookIdx] !== typeof initialState
+  ) {
     store.states[hookIdx] = initialState;
   }
 

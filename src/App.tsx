@@ -1,8 +1,4 @@
-import { TodoContainer } from "@/components/todo";
-
-import { ReconciliationTest } from "@/components/reconciliation-test";
-
-
+import RouterTest from "@/components/reconciliation-test/RouterTest";
 
 export const App = () => {
   return (
@@ -11,8 +7,7 @@ export const App = () => {
       <div>{null}</div>
       <div>{undefined}</div>
       <div>{0}</div>
-      <ReconciliationTest/>
-      <TodoContainer />
+      <RouterTest />
     </div>
   );
 };
